@@ -19,6 +19,7 @@ from PIL import Image, ImageDraw, ImageFont
 st.set_page_config(page_title="Excel Practice Bot", page_icon=":bar_chart:", layout="wide", initial_sidebar_state="collapsed")
 DEFAULT_LOGO_PATH = Path(__file__).parent / "assets" / "excel_logics_logo.png"
 ALT_LOGO_PATH = Path(__file__).parent / "assets" / "Logo1.png"
+ALT_LOGO_PATH_LOWER = Path(__file__).parent / "assets" / "logo1.png"
 QUESTION_REGISTRY_PATH = Path(__file__).parent / "data" / "used_question_signatures.txt"
 PARTICIPANT_SEQUENCE_PATH = Path(__file__).parent / "data" / "participant_sequence.txt"
 
@@ -86,7 +87,7 @@ def _hex_to_rgb(color_hex: str) -> tuple[int, int, int]:
 def _resolve_logo_bytes(logo_upload) -> tuple[bytes | None, str | None]:
     if logo_upload is not None:
         return logo_upload.getvalue(), logo_upload.type or "image/png"
-    for logo_path in [DEFAULT_LOGO_PATH, ALT_LOGO_PATH]:
+    for logo_path in [DEFAULT_LOGO_PATH, ALT_LOGO_PATH, ALT_LOGO_PATH_LOWER]:
         if logo_path.exists():
             suffix = logo_path.suffix.lower()
             if suffix in [".jpg", ".jpeg"]:
@@ -575,20 +576,23 @@ def _inject_brand_css(primary_color: str, secondary_color: str) -> None:
             border-radius: 10px;
             border: 1px solid #dbe4ee;
         }}
-        .stDownloadButton > button, .stButton > button {{
+        .stDownloadButton > button, .stButton > button, [data-testid="stFormSubmitButton"] > button, [data-testid="stDownloadButton"] > button, button[kind] {{
             border-radius: 10px;
             border: 1px solid #0f172a !important;
             color: #ffffff !important;
             background: #0f172a !important;
             font-weight: 600;
+            opacity: 1 !important;
         }}
-        .stDownloadButton > button:hover, .stButton > button:hover {{
+        .stDownloadButton > button:hover, .stButton > button:hover, [data-testid="stFormSubmitButton"] > button:hover, [data-testid="stDownloadButton"] > button:hover, button[kind]:hover {{
             background: #1e293b !important;
             color: #ffffff !important;
             border-color: #1e293b !important;
         }}
-        .stDownloadButton button *, .stButton button * {{
+        .stDownloadButton button *, .stButton button *, [data-testid="stFormSubmitButton"] button *, [data-testid="stDownloadButton"] button *, button[kind] *, button[kind] p, button[kind] span, button p, button span {{
             color: #ffffff !important;
+            fill: #ffffff !important;
+            opacity: 1 !important;
         }}
         </style>
         """,
