@@ -20,6 +20,7 @@ st.set_page_config(page_title="Excel Practice Bot", page_icon=":bar_chart:", lay
 DEFAULT_LOGO_PATH = Path(__file__).parent / "assets" / "excel_logics_logo.png"
 ALT_LOGO_PATH = Path(__file__).parent / "assets" / "Logo1.png"
 ALT_LOGO_PATH_LOWER = Path(__file__).parent / "assets" / "logo1.png"
+ASSETS_DIR = Path(__file__).parent / "assets"
 QUESTION_REGISTRY_PATH = Path(__file__).parent / "data" / "used_question_signatures.txt"
 PARTICIPANT_SEQUENCE_PATH = Path(__file__).parent / "data" / "participant_sequence.txt"
 
@@ -87,13 +88,26 @@ def _hex_to_rgb(color_hex: str) -> tuple[int, int, int]:
 def _resolve_logo_bytes(logo_upload) -> tuple[bytes | None, str | None]:
     if logo_upload is not None:
         return logo_upload.getvalue(), logo_upload.type or "image/png"
-    for logo_path in [DEFAULT_LOGO_PATH, ALT_LOGO_PATH, ALT_LOGO_PATH_LOWER]:
+
+    preferred = [DEFAULT_LOGO_PATH, ALT_LOGO_PATH, ALT_LOGO_PATH_LOWER]
+    for logo_path in preferred:
         if logo_path.exists():
             suffix = logo_path.suffix.lower()
-            if suffix in [".jpg", ".jpeg"]:
-                mime = "image/jpeg"
-            else:
-                mime = "image/png"
+            mime = "image/jpeg" if suffix in [".jpg", ".jpeg"] else "image/png"
+            return logo_path.read_bytes(), mime
+
+    if ASSETS_DIR.exists():
+        candidates = sorted(
+            [
+                p
+                for p in ASSETS_DIR.iterdir()
+                if p.is_file() and p.suffix.lower() in [".png", ".jpg", ".jpeg", ".webp"]
+            ],
+            key=lambda p: (0 if "logo" in p.name.lower() else 1, p.name.lower()),
+        )
+        for logo_path in candidates:
+            suffix = logo_path.suffix.lower()
+            mime = "image/jpeg" if suffix in [".jpg", ".jpeg"] else "image/png"
             return logo_path.read_bytes(), mime
     return None, None
 
@@ -594,6 +608,10 @@ def _inject_brand_css(primary_color: str, secondary_color: str) -> None:
             fill: #ffffff !important;
             opacity: 1 !important;
         }}
+        .app-title {{
+            text-align: center;
+            margin-top: 0.2rem;
+        }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -610,14 +628,16 @@ display_brand_name = brand_name.strip() or "Excel Logics"
 logo_bytes, logo_mime = _resolve_logo_bytes(logo_upload)
 logo_uri = _logo_data_uri(logo_bytes, logo_mime)
 
-header_col1, header_col2 = st.columns([1, 6])
+header_col1, header_col2, header_col3 = st.columns([1, 6, 1])
 with header_col1:
     if logo_bytes:
         st.image(logo_bytes, width=110)
     else:
         st.image(_placeholder_logo(), width=110)
 with header_col2:
-    st.title(f"{display_brand_name} - AI Excel Practice Bot")
+    st.markdown(f'<h1 class="app-title">{display_brand_name} - AI Excel Practice Bot</h1>', unsafe_allow_html=True)
+with header_col3:
+    st.write("")
 
 roles = [
     "Data Analyst",
