@@ -34,3 +34,4 @@ python3 -m streamlit run app.py
 3. Complete optional tasks in `Activities` sheet.
 4. Upload the same workbook for evaluation.
 5. Check certificate card (with student details), chart, and detailed report.
+6. 
