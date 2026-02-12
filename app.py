@@ -104,6 +104,14 @@ def _logo_data_uri(logo_bytes: bytes | None, mime: str | None) -> str:
     return f"data:{mime};base64,{b64}"
 
 
+def _placeholder_logo() -> Image.Image:
+    img = Image.new("RGBA", (240, 80), (255, 255, 255, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle((4, 8, 72, 72), radius=12, fill=(179, 205, 54, 255))
+    d.rounded_rectangle((30, 8, 72, 72), radius=12, fill=(0, 153, 204, 255))
+    return img
+
+
 def _pick_font(size: int) -> ImageFont.ImageFont:
     candidates = [
         "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
@@ -503,7 +511,7 @@ def _inject_brand_css(primary_color: str, secondary_color: str) -> None:
                 var(--bg-main);
             color: var(--text-main);
         }}
-        h1, h2, h3, h4, h5, h6, p, label, span, div {{
+        h1, h2, h3, h4, h5, h6, p, label {{
             color: var(--text-main);
         }}
         [data-testid="stHeader"] {{
@@ -569,9 +577,18 @@ def _inject_brand_css(primary_color: str, secondary_color: str) -> None:
         }}
         .stDownloadButton > button, .stButton > button {{
             border-radius: 10px;
-            border: 1px solid var(--brand-primary);
-            color: var(--brand-primary);
-            background: #ffffff;
+            border: 1px solid #0f172a !important;
+            color: #ffffff !important;
+            background: #0f172a !important;
+            font-weight: 600;
+        }}
+        .stDownloadButton > button:hover, .stButton > button:hover {{
+            background: #1e293b !important;
+            color: #ffffff !important;
+            border-color: #1e293b !important;
+        }}
+        .stDownloadButton button *, .stButton button * {{
+            color: #ffffff !important;
         }}
         </style>
         """,
@@ -594,11 +611,9 @@ with header_col1:
     if logo_bytes:
         st.image(logo_bytes, width=110)
     else:
-        st.markdown("**Excel Logics Logo Missing**")
-        st.caption(f"Add logo file at: {DEFAULT_LOGO_PATH} or {ALT_LOGO_PATH}")
+        st.image(_placeholder_logo(), width=110)
 with header_col2:
     st.title(f"{display_brand_name} - AI Excel Practice Bot")
-    st.caption("Collect student details, generate role-based Excel practice data, and auto-evaluate submissions.")
 
 roles = [
     "Data Analyst",
